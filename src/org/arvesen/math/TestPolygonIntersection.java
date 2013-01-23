@@ -45,8 +45,8 @@ public class TestPolygonIntersection {
 				boolean shouldPlot = false;
 				boolean shouldPlotLine = false;
 
-				shouldPlot = plotPolygon( xPos, yPos );
-				shouldPlotLine = plotLine( xPos, yPos, shouldPlotLine );
+				shouldPlot = shouldPlotPolygon( xPos, yPos );
+				shouldPlotLine = shouldPlotLine( xPos, yPos, shouldPlotLine );
 
 				if ( shouldPlotLine ) {
 					System.out.print( " *" );
@@ -72,15 +72,23 @@ public class TestPolygonIntersection {
 		System.out
 				.println( "=========================================================================================================" );
 
+		long start = System.currentTimeMillis();
+		
+		PolygonIntersectionTool tool = new PolygonIntersectionTool( routeOfPolygons );
+		
 		for (Point point : lineAPoints) {
-			boolean isWithinBoundary = pointInPolygon( point );
+			boolean isWithinBoundary = tool.isPointInPolygon( point );
 			System.out.println( "---------------------------------------------------------------------" );
-			System.out.println( "Within boundary? " + isWithinBoundary );
+			System.out.println( point.getX() + "," + point.getY() + " is within boundary? " + isWithinBoundary );
 			System.out.println( "=====================================================================" );
 		}
+		
+		long end = System.currentTimeMillis();
+		
+		System.out.println("Execution took " + (end - start) + "ms");
 	}
 
-	private static boolean plotLine( int xPos, int yPos, boolean shouldPlotLine ) {
+	private static boolean shouldPlotLine( int xPos, int yPos, boolean shouldPlotLine ) {
 		for (Point point : lineAPoints) {
 			if ( xPos == point.getX() && yPos == point.getY() ) {
 				shouldPlotLine = true;
@@ -89,7 +97,7 @@ public class TestPolygonIntersection {
 		return shouldPlotLine;
 	}
 
-	private static boolean plotPolygon( int xPos, int yPos ) {
+	private static boolean shouldPlotPolygon( int xPos, int yPos ) {
 		boolean shouldPlot = false;
 		for (int polyCounter = 0; polyCounter < routeOfPolygons.length;) {
 			if ( xPos == routeOfPolygons[polyCounter] && yPos == routeOfPolygons[polyCounter + 1] ) {
@@ -100,79 +108,6 @@ public class TestPolygonIntersection {
 		return shouldPlot;
 	}
 
-	private static boolean pointInPolygon( Point point ) {
-		// Globals which should be set before calling this function:
-		//
-		// int polySides = how many corners the polygon has
-		// float polyX[] = horizontal coordinates of corners
-		// float polyY[] = vertical coordinates of corners
-		// float x, y = point to be tested
-		//
-		// (Globals are used in this example for purposes of speed. Change as
-		// desired.)
-		//
-		// The function will return YES if the point x,y is inside the polygon,
-		// or
-		// NO if it is not. If the point is exactly on the edge of the polygon,
-		// then the function may return YES or NO.
-		//
-		// Note that division by zero is avoided because the division is
-		// protected
-		// by the "if" clause which surrounds it.
 
-		int nrOfCoordinatesInPolygon = routeOfPolygons.length / 2;
-		int i = 0;
-		int j = nrOfCoordinatesInPolygon - 1;
-		System.out.println( "Number of coordinates in polygons is " + nrOfCoordinatesInPolygon );
-		System.out.println( "j = " + j );
-		boolean oddNodes = false;
-
-		int polyY[] = new int[nrOfCoordinatesInPolygon];
-		int polyX[] = new int[nrOfCoordinatesInPolygon];
-		int countY = 0;
-		int countX = 0;
-		for (i = 0; i < routeOfPolygons.length; i++) {
-			if ( i % 2 == 0 ) {
-				polyX[countX] = routeOfPolygons[i];
-				// System.out.print( "x = " + polyX[countX] );
-				countX++;
-			}
-			if ( i % 2 == 1 ) {
-				polyY[countY] = routeOfPolygons[i];
-				// System.out.print( ", y = " + polyY[countY] + "\n" );
-				countY++;
-			}
-		}
-
-		System.out.println( "Number of horizontal points " + polyX.length );
-		System.out.println( "Number of vertical points " + polyY.length );
-
-		for (i = 0; i < nrOfCoordinatesInPolygon; i++) {
-			System.out.println( "Calc: " + polyY[i] + " < " + point.getY() + " && " + polyY[j] + " >= " + point.getY()
-					+ " || " + polyY[j] + " < " + point.getY() );
-
-			if ( polyY[i] < point.getY() && polyY[j] >= point.getY() || polyY[j] < point.getY()
-					&& polyY[i] >= point.getY() ) {
-
-				System.out.println( point.getY() + " is within vertical plane!" );
-
-				System.out.println( polyX[i] + ( point.getY() - polyY[i] ) / ( polyY[j] - polyY[i] )
-						* ( polyX[j] - polyX[i] ) );
-
-				if ( polyX[i] + ( point.getY() - polyY[i] ) / ( polyY[j] - polyY[i] ) * ( polyX[j] - polyX[i] ) < point
-						.getX() ) {
-
-					System.out.println( point.getX() + " is within horizontal plane!" );
-					oddNodes = true;
-				} else {
-					System.out.println( point.getX() + " is not within horizontal plane!" );
-				}
-			} else {
-				System.out.println( point.getY() + " is not within vertical plane!" );
-			}
-			j = i;
-		}
-		return oddNodes;
-	}
 
 }
